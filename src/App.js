@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { LogBox, StyleSheet, Text,Button as Butt, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import {  useDispatch } from 'react-redux'
+import {  useDispatch, useSelector } from 'react-redux'
+import { useNavigation } from '@react-navigation/native'
 
 import { initializeApp ,} from 'firebase/app';
 import { getReactNativePersistence , initializeAuth} from 'firebase/auth';
@@ -8,21 +9,108 @@ import {getAuth} from 'firebase/auth';
 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { Button, Header } from './common'
-import LoginForm from './LoginForm';
-import { logoutSuccess } from './Redux/AuthSlice';
+import LoginForm from './screens/LoginForm';
+import { logoutSuccess, setAuth } from './Redux/AuthSlice';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import EmployeeList from './screens/EmployeeList';
+import AddEmployee from './screens/AddEmployee';
 
+const AppStack = createNativeStackNavigator();
+const EmployeeStack = createNativeStackNavigator();
+
+
+const AppNavigator = ({ auth }) => {
+  return (
+    <AppStack.Navigator initialRouteName= 'LoginForm'>
+      <AppStack.Screen
+        name='LoginForm'
+        component={LoginForm}
+        initialParams={{ value: 'Log In', auth: auth }}
+        options={{
+          title: 'Authentication',
+        }}
+      />
+      <AppStack.Screen
+        name='EmployeeList'
+        component={EmployeeList}
+         
+        options={{
+          title: 'EmployeeList',    
+          headerBackVisible:false,
+          
+          headerRight: () => 
+          <Butt title={"flickers"} onPress={() => {console.log("button pressed");}} 
+          />, 
+        }}
+        
+      />
+    </AppStack.Navigator>
+  );
+};
+
+const AppNavigator2 = ({ auth }) => {
+  const nav = useNavigation();
+
+  return (
+    <AppStack.Navigator initialRouteName= 'EmployeeList'>
+      
+      <AppStack.Screen
+        name='LoginForm'
+        component={LoginForm}
+        initialParams={{ value: 'Log In', auth: auth }}
+        options={{
+          title: 'Authentication',
+        }}
+      />
+
+      <AppStack.Screen
+        name='EmployeeList'
+        component={EmployeeList}
+         
+        options={{
+          title: 'EmployeeList',    
+          headerBackVisible:false,
+          
+          headerRight: () => 
+          <Butt title={"Add Employee"} onPress={() => {nav.navigate('AddEmployee')}} 
+          />, 
+        }}
+        
+      />
+
+        <AppStack.Screen
+        name='AddEmployee'
+        component={AddEmployee}
+        initialParams={{ value: 'Log In', auth: auth }}
+        options={{
+          title: 'Add Employee',
+        }}
+      />
+      
+    </AppStack.Navigator>
+  );
+};
 
 const App = () => {
 
-  const [auth, setAuth] =useState({});
+
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [auth, setAuth] = useState();
+
   const dispatch=useDispatch();
 
+  const stack = createNativeStackNavigator();
+
+  
   function onAuthStateChanged(user) {
     setUser(user);
     if (initializing) setInitializing(false);
   }
+  LogBox.ignoreLogs([
+    'Non-serializable values were found in the navigation state',
+  ]);
 
   useEffect(()=>{
 // TODO: Add SDKs for Firebase products that you want to use
@@ -57,44 +145,24 @@ return subscriber;
 
   if (initializing) return null;
 
-  
-  if (!user) {
+   
     return (
-    <View>
-    <Header
-      headerText="Authentication"
+user ?
+<NavigationContainer>
+      <AppNavigator2 
+      auth={auth} 
       />
-      <LoginForm
-      value="Log In"
-      auth={auth}
+    </NavigationContainer>
+:
+      <NavigationContainer>
+      <AppNavigator 
+      auth={auth} 
       />
-    </View>
-    )
-  }
-
-  return (
-
-    <View>
-      <Header
-      headerText="Authentication"
-      />
-    <Button
-      value="Log Out"
-      onButtonPress={() =>{getAuth()
-        .signOut()
-        .then(() => 
-        {
-          console.log('User signed out!');
-          dispatch(logoutSuccess());
-        } 
-          )}
-
-
-      }
-      />   
-    </View>
-
-  )
+    </NavigationContainer>
+          )
+        
+       
+  
 }
 
 export default App

@@ -1,18 +1,19 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
-import { Button, Card, CardSection } from './common'
-import Input from './common/Input'
+import { Button, Card, CardSection, Header } from '../common'
+import Input from '../common/Input'
 
 import { useDispatch, useSelector } from 'react-redux'
 
 import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { login } from './Redux/ActionCreater'
-import { emailChange, passwordChange, setLoading } from './Redux/AuthSlice'
+import { login } from '../Redux/ActionCreater'
+import { emailChange, passwordChange, setLoading } from '../Redux/AuthSlice'
 
 
-const LoginForm = ({auth}) => {
+const LoginForm = ({route, navigation}) => {
   
   const { email, password ,loading} = useSelector((state) => state.Auth1);
+  const auth = route.params?.auth;
 
     const dispatch =useDispatch();
 
@@ -29,10 +30,12 @@ const LoginForm = ({auth}) => {
       setError(" ");
       dispatch(setLoading(true));  
     
-      dispatch(login(auth,email, password));
-
+      dispatch(login(auth,email, password, navigation));
+      
     }
   return (
+    <View>
+      
    <Card>
     
     <CardSection>
@@ -65,6 +68,7 @@ const LoginForm = ({auth}) => {
     </CardSection>
 
    </Card>
+   </View>
   )
 }
 

@@ -4,7 +4,7 @@ import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } fr
 import { Alert } from "react-native";
 
 
-export function login(auth,email, password) {
+export function login(auth,email, password, navigation) {
 
 
     return async function loginThunk(dispatch, getState) {
@@ -19,6 +19,7 @@ console.log("signInWithEmailAndPassword");
         {
           console.log("action creater:");
             dispatch(loginSuccess(user.user));
+            navigation.navigate('EmployeeList');
         }
 
         loginS(user);
@@ -55,8 +56,13 @@ console.log("signInWithEmailAndPassword");
 
         else if (createError.code === 'auth/invalid-email') {
           Alert.alert('Error', 'invalid-email');
-      }
-
+        }
+        else if (createError.code === 'auth/missing-password') {
+          Alert.alert('Error', 'missing-password');
+        }
+        else if (createError.code === 'auth/missing-email') {
+            Alert.alert('Error', 'missing-email');
+        }
         else{
             Alert.alert('Error', createError.message);
         }
