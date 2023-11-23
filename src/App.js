@@ -16,6 +16,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import EmployeeList from './screens/EmployeeList';
 import AddEmployee from './screens/AddEmployee';
 import { getFirestore } from "firebase/firestore";
+import EmployeeEdit from './common/EmployeeEdit';
+
 
 const AppStack = createNativeStackNavigator();
 const EmployeeStack = createNativeStackNavigator();
@@ -85,6 +87,15 @@ const AppNavigator2 = ({ auth, db }) => {
         initialParams={{ value: 'Log In', db:db , auth: auth}}
         options={{
           title: 'Add Employee',
+        }}
+      />
+      
+      <AppStack.Screen
+        name='EmployeeEdit'
+        component={EmployeeEdit}
+        initialParams={{ value: 'Log In', db:db , auth: auth}}
+        options={{
+          title: 'Edit Employee',
         }}
       />
       

@@ -21,7 +21,7 @@ const Button = ({value, email, password,onButtonPress}) => {
   :
   <TouchableHighlight activeOpacity={0.6}
   underlayColor="red"
-  onPress={()=>{onButtonPress(auth3, email, password)} }
+  onPress={()=>{onButtonPress()} }
   style={styles.buttonStyle}
 >
 <Text 

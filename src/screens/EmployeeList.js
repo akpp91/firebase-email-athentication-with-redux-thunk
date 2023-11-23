@@ -1,11 +1,12 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchEmployeeData } from '../Redux/ActionCreater'
 import { useIsFocused } from '@react-navigation/native'
 import { Card, CardSection } from '../common'
 
-const EmployeeList = ({route}) => {
+
+const EmployeeList = ({route, navigation}) => {
   const dispatch=useDispatch();
   const auth = route.params?.auth;
   const db = route.params?.db;
@@ -16,16 +17,20 @@ const EmployeeList = ({route}) => {
     dispatch(fetchEmployeeData(auth, db));
     
   },[focus])
-
+  
   return (
     <View>
-      <Text>EmployeeList</Text>
+      
       <FlatList
         data={empList}
         renderItem={({ item }) => (
           <Card>
             <CardSection>
-            <Text>{item.name}</Text>
+              <TouchableNativeFeedback onPress={()=>navigation.navigate('EmployeeEdit',{item:item})}>
+            <Text style={styles.labelStyle}>
+            {item.name}
+            </Text>
+            </TouchableNativeFeedback>
             </CardSection>
             </Card>
         )}
@@ -37,4 +42,12 @@ const EmployeeList = ({route}) => {
 
 export default EmployeeList
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+
+  labelStyle:{
+    fontSize:22,
+    paddingTop:2,
+    paddingLeft:10,
+    flex:1
+      }
+})

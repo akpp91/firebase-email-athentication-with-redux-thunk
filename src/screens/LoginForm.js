@@ -26,10 +26,8 @@ const LoginForm = ({route, navigation}) => {
       console.log(email);
       console.log(password);
       console.log(auth);
-      console.log("is loading before dispatch ",loading);
       setError(" ");
-      dispatch(setLoading(true));  
-    
+      dispatch(setLoading(true));      
       dispatch(login(auth,email, password, navigation));
       
     }

@@ -14,7 +14,6 @@ const employeeSlice = createSlice({
   initialState,
   reducers: {
     employeeUpdate(state, action) {
-        console.log("emp slice");
 return{ ...state , [action.payload.prop]:action.payload.value }
     },
   },

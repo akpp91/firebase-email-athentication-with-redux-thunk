@@ -15,7 +15,6 @@ const userSlice = createSlice({
 
 
       state.isLoggedIn = true;
-      console.log(email);
       state.user =action.payload;
     },
     logoutSuccess(state) {

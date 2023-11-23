@@ -1,6 +1,6 @@
 import { emailChange, loginSuccess, passwordChange, setLoadingFalse } from "./AuthSlice";
 import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, doc, getDocs } from 'firebase/firestore';
+import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 
 import { Alert } from "react-native";
 import { employeeUpdate } from "./employeeSlice";
@@ -13,13 +13,12 @@ export function login(auth,email, password, navigation) {
 
       try {
         // Attempt to sign in
-console.log("signInWithEmailAndPassword");
         const user = await signInWithEmailAndPassword(auth, email, password );
         console.log("after signInWithEmailAndPassword");
         // If successful, you can proceed with any post-login logic
         function loginS(user)
         {
-          console.log("action creater:");
+
             dispatch(loginSuccess(user));
             navigation.navigate('EmployeeList');
         }
@@ -29,7 +28,7 @@ console.log("signInWithEmailAndPassword");
       catch (signInError) {
         // If signing in fails, try to create a new account
         try {
-          console.log("createUserWithEmailAndPassword");
+
             const user=  await createUserWithEmailAndPassword(auth, email, password);
           // If account creation is successful, you can proceed with post-creation logic
          
@@ -77,7 +76,7 @@ console.log("signInWithEmailAndPassword");
 export function fetchEmployeeData(auth,db) {
     return async function fetchEmployeeDataThunk(dispatch) {
       try {
-        console.log("fetchEmployeeData"+auth);
+        
         const userEmail = auth.currentUser.email;
         const userDocRef = doc(collection(db, 'users'), userEmail);
         const employeesCollectionRef = collection(userDocRef, 'employees');
@@ -97,7 +96,7 @@ export function fetchEmployeeData(auth,db) {
         // dispatch(updateEmployeeData(employeeData));
   
         // For now, you can log the data to the console
-        console.log('Fetched Employee Data:', employeeData);
+        
         dispatch(employeeUpdate({ prop: 'empList', value: employeeData }));
       } catch (error) {
         // Handle errors
@@ -108,3 +107,27 @@ export function fetchEmployeeData(auth,db) {
       }
     };
   }
+
+  // Action to update an employee record in Firestore
+export function updateEmployeeRecord(auth, db, updatedEmployee) {
+  return async function updateEmployeeRecordThunk(dispatch) {
+    try {
+      const userEmail = auth.currentUser.email;
+      const userDocRef = doc(collection(db, 'users'), userEmail);
+      const employeeDocRef = doc(collection(userDocRef, 'employees'), updatedEmployee.id);
+
+      // Use updateDoc to update the existing document
+      await updateDoc(employeeDocRef, {
+        name: updatedEmployee.name,
+        phone: updatedEmployee.phone,
+        shift: updatedEmployee.shift,
+      });
+
+ Alert.alert('Employee record updated in Firestore');
+      // You may want to dispatch an action to update the Redux store if needed
+    } catch (error) {
+      console.error('Error updating employee record:', error);
+      // Handle errors if necessary
+    }
+  };
+}

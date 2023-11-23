@@ -31,7 +31,6 @@ export const AuthSlice = createSlice({
     logoutSuccess(state) {
       state.isLoggedIn = false;
       state.user = null;
-      console.log("is loading after dispatch in auth slice");
       state.email='',
       state.password=''
     },
