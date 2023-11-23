@@ -15,6 +15,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import EmployeeList from './screens/EmployeeList';
 import AddEmployee from './screens/AddEmployee';
+import { getFirestore } from "firebase/firestore";
 
 const AppStack = createNativeStackNavigator();
 const EmployeeStack = createNativeStackNavigator();
@@ -49,7 +50,7 @@ const AppNavigator = ({ auth }) => {
   );
 };
 
-const AppNavigator2 = ({ auth }) => {
+const AppNavigator2 = ({ auth, db }) => {
   const nav = useNavigation();
 
   return (
@@ -67,11 +68,10 @@ const AppNavigator2 = ({ auth }) => {
       <AppStack.Screen
         name='EmployeeList'
         component={EmployeeList}
-         
+        initialParams={{ db:db , auth: auth}}
         options={{
           title: 'EmployeeList',    
           headerBackVisible:false,
-          
           headerRight: () => 
           <Butt title={"Add Employee"} onPress={() => {nav.navigate('AddEmployee')}} 
           />, 
@@ -82,7 +82,7 @@ const AppNavigator2 = ({ auth }) => {
         <AppStack.Screen
         name='AddEmployee'
         component={AddEmployee}
-        initialParams={{ value: 'Log In', auth: auth }}
+        initialParams={{ value: 'Log In', db:db , auth: auth}}
         options={{
           title: 'Add Employee',
         }}
@@ -98,6 +98,7 @@ const App = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
   const [auth, setAuth] = useState();
+  const [db, setDb] = useState();
 
   const dispatch=useDispatch();
 
@@ -136,7 +137,9 @@ const auth1 = initializeAuth(app, {
 });
 
 setAuth(auth1);
-
+const db = getFirestore(app);
+console.log(db);
+setDb(db);
 
 const subscriber = getAuth().onAuthStateChanged(onAuthStateChanged);
 return subscriber;
@@ -151,6 +154,7 @@ user ?
 <NavigationContainer>
       <AppNavigator2 
       auth={auth} 
+      db={db}
       />
     </NavigationContainer>
 :

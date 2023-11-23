@@ -5,6 +5,7 @@ const initialState = {
   name: '',
   phone: '',
   shift: '',
+  empList:null
 };
 
 // Slice

@@ -2,19 +2,26 @@ import { StyleSheet, Text, TouchableHighlight, View } from 'react-native'
 import React from 'react'
 import { useSelector } from 'react-redux';
 import Spinner from './Spinner';
+import { Card } from './Card';
+import { CardSection } from './CardSection';
+import { auth3 } from '../App';
 
-const Button = ({value,auth, email, password,onButtonPress}) => {
+const Button = ({value, email, password,onButtonPress}) => {
   const { loading} = useSelector((state) => state.Auth1);
 
   return (    
     
       loading
       ?
-      <Spinner/> 
+      <Card>
+        <CardSection>
+            <Spinner/> 
+      </CardSection>
+      </Card>
   :
   <TouchableHighlight activeOpacity={0.6}
   underlayColor="red"
-  onPress={()=>{onButtonPress(auth, email, password)} }
+  onPress={()=>{onButtonPress(auth3, email, password)} }
   style={styles.buttonStyle}
 >
 <Text 

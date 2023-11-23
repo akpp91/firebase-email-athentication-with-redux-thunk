@@ -6,6 +6,7 @@ import { CardSection } from './CardSection';
 import Input from './Input';
 import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import Spinner from './Spinner';
+import { auth3 } from '../App';
 
 
 const LoginForm = (props) => {
@@ -25,7 +26,7 @@ const LoginForm = (props) => {
 
               try {
                 // Attempt to sign in
-                await signInWithEmailAndPassword(props.auth, email, password);
+                await signInWithEmailAndPassword(auth3, email, password);
               
                 // If successful, you can proceed with any post-login logic
                 function loginSuccess(){
@@ -38,7 +39,7 @@ const LoginForm = (props) => {
               } catch (signInError) {
                 // If signing in fails, try to create a new account
                 try {
-                  await createUserWithEmailAndPassword(props.auth, email, password);
+                  await createUserWithEmailAndPassword(auth3, email, password);
                   // If account creation is successful, you can proceed with post-creation logic
                   loginSuccess()
 

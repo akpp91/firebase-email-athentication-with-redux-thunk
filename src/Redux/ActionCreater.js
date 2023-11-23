@@ -1,7 +1,9 @@
 import { emailChange, loginSuccess, passwordChange, setLoadingFalse } from "./AuthSlice";
 import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { collection, doc, getDocs } from 'firebase/firestore';
 
 import { Alert } from "react-native";
+import { employeeUpdate } from "./employeeSlice";
 
 
 export function login(auth,email, password, navigation) {
@@ -18,7 +20,7 @@ console.log("signInWithEmailAndPassword");
         function loginS(user)
         {
           console.log("action creater:");
-            dispatch(loginSuccess(user.user));
+            dispatch(loginSuccess(user));
             navigation.navigate('EmployeeList');
         }
 
@@ -71,3 +73,38 @@ console.log("signInWithEmailAndPassword");
     }
   }
   
+
+export function fetchEmployeeData(auth,db) {
+    return async function fetchEmployeeDataThunk(dispatch) {
+      try {
+        console.log("fetchEmployeeData"+auth);
+        const userEmail = auth.currentUser.email;
+        const userDocRef = doc(collection(db, 'users'), userEmail);
+        const employeesCollectionRef = collection(userDocRef, 'employees');
+  
+        // Fetch all documents from the "employees" collection
+        const querySnapshot = await getDocs(employeesCollectionRef);
+        
+        
+        // Extract data from the documents
+        const employeeData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+  
+        // Dispatch an action to update the state with the fetched data
+        // You may want to create a specific action for this purpose
+        // dispatch(updateEmployeeData(employeeData));
+  
+        // For now, you can log the data to the console
+        console.log('Fetched Employee Data:', employeeData);
+        dispatch(employeeUpdate({ prop: 'empList', value: employeeData }));
+      } catch (error) {
+        // Handle errors
+        console.error('Error fetching employee data:', error);
+        dispatch(setLoadingFalse(false));
+        // You may want to dispatch an action to update the state with an error message
+        // dispatch(updateErrorState(errorMessage));
+      }
+    };
+  }

@@ -5,10 +5,14 @@ import { Card, CardSection, Button } from '../common';
 import Input from '../common/Input';
 import { employeeUpdate } from '../Redux/employeeSlice';
 import { Picker } from '@react-native-picker/picker';
+import { collection, addDoc, doc } from 'firebase/firestore';
 
-const AddEmployee = () => {
+const AddEmployee = ({route, navigation}) => {
+  const { user } = useSelector((state) => state.Auth1);
   const dispatch = useDispatch();
   const { name, phone, shift } = useSelector((state) => state.employee);
+  const db = route.params?.db;
+  const auth = route.params?.auth;
 
   const onNameChange = (text) => {
     dispatch(employeeUpdate({ prop: 'name', value: text }));
@@ -22,12 +26,30 @@ const AddEmployee = () => {
     dispatch(employeeUpdate({ prop: 'shift', value: text }));
   };
 
-  const onAddEmployee = () => {
-    // Dispatch an action to add the employee to the store or perform any other necessary logic.
-    // You may want to create another action and reducer to handle adding employees to the store.
-    console.log('Add employee:', { name, phone, shift });
-  };
+  const onAddEmployee = async () => {
+  try {
+    const userEmail = auth.currentUser.email;
 
+    console.log("User Email:", userEmail);
+    const userDocRef = doc(collection(db, "users"), userEmail);
+
+    await addDoc(collection(userDocRef, "employees"), {
+      name: name,
+      phone: phone,
+      shift: shift,
+    });
+
+    console.log("Employee added");
+    dispatch(employeeUpdate({ prop: 'name', value: '' }));
+    dispatch(employeeUpdate({ prop: 'phone', value: '' }));
+    dispatch(employeeUpdate({ prop: 'shift', value: 'Select Shift' }));
+    navigation.navigate('EmployeeList');  
+  } catch (error) {
+    console.log("Error", error);
+  }
+};
+
+  
   return (
     <View>
       <Card>
@@ -35,7 +57,7 @@ const AddEmployee = () => {
           <Input
             label="Name"
             placeholder="Enter name"
-            value={name}
+            data={name}
             onChange={onNameChange}
           />
         </CardSection>
@@ -46,7 +68,7 @@ const AddEmployee = () => {
           <Input
             label="Phone"
             placeholder="Enter phone number"
-            value={phone}
+            data={phone}
             onChange={onPhoneChange}
           />
         </CardSection>
