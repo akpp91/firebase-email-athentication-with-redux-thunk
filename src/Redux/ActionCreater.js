@@ -4,6 +4,7 @@ import { collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firesto
 
 import { Alert } from "react-native";
 import { employeeUpdate } from "./employeeSlice";
+import { db } from "../common/firebaseApp";
 
 
 export function login(auth,email, password, navigation) {
@@ -13,14 +14,18 @@ export function login(auth,email, password, navigation) {
 
       try {
         // Attempt to sign in
-        const user = await signInWithEmailAndPassword(auth, email, password );
+        const user = await signInWithEmailAndPassword(getAuth(), email, password );
         console.log("after signInWithEmailAndPassword");
+        console.log(db);
+
         // If successful, you can proceed with any post-login logic
         function loginS(user)
         {
-
             dispatch(loginSuccess(user));
+            dispatch(fetchEmployeeData(db));
             navigation.navigate('EmployeeList');
+
+            
         }
 
         loginS(user);
@@ -73,11 +78,11 @@ export function login(auth,email, password, navigation) {
   }
   
 
-export function fetchEmployeeData(auth,db) {
+export function fetchEmployeeData() {
     return async function fetchEmployeeDataThunk(dispatch) {
       try {
         
-        const userEmail = auth.currentUser.email;
+        const userEmail = getAuth().currentUser.email;
         const userDocRef = doc(collection(db, 'users'), userEmail);
         const employeesCollectionRef = collection(userDocRef, 'employees');
   
@@ -100,7 +105,7 @@ export function fetchEmployeeData(auth,db) {
         dispatch(employeeUpdate({ prop: 'empList', value: employeeData }));
       } catch (error) {
         // Handle errors
-        console.error('Error fetching employee data:', error);
+        console.log('Error fetching employee data:', error);
         dispatch(setLoadingFalse(false));
         // You may want to dispatch an action to update the state with an error message
         // dispatch(updateErrorState(errorMessage));
@@ -123,7 +128,9 @@ export function updateEmployeeRecord(auth, db, updatedEmployee) {
         shift: updatedEmployee.shift,
       });
 
- Alert.alert('Employee record deleted');
+ Alert.alert('Employee record updated');
+ dispatch(fetchEmployeeData(db));
+
       // You may want to dispatch an action to update the Redux store if needed
     } catch (error) {
       console.error('Error updating employee record:', error);
@@ -142,9 +149,12 @@ export function deleteEmployeeRecord(auth, db, employeeId) {
 
       // Use deleteDoc to delete the document
       await deleteDoc(employeeDocRef);
+      dispatch(fetchEmployeeData(db));
 
       Alert.alert('Employee record deleted from Firestore');
-
+dispatch(employeeUpdate({ prop: 'name', value: '' }));
+    dispatch(employeeUpdate({ prop: 'phone', value: '' }));
+    dispatch(employeeUpdate({ prop: 'shift', value: 'Select Shift' }));
       // You may want to dispatch an action to update the Redux store if needed
     } catch (error) {
       console.error('Error deleting employee record:', error);

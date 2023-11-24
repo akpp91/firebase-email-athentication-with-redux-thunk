@@ -14,18 +14,19 @@ import { Picker } from '@react-native-picker/picker'
 
 
 const EmployeeEdit = (props) => {
-    
     const dispatch=useDispatch();
     const { name, phone, shift } = useSelector((state) => state.employee);
 
     const item = props.route.params?.item;
+    
     const focus=useIsFocused();
+    console.log(focus);
     const db = props.route.params?.db;
     const auth = props.route.params?.auth;
     const [selectedShift, setSelectedShift] = useState(shift);
 
     useEffect( ()=>{
-      console.log("shift value in useeffect edit"+" "+shift);
+      
       if (focus) 
       {
         dispatch(employeeUpdate({ prop: 'name', value: item.name }));
@@ -33,12 +34,6 @@ const EmployeeEdit = (props) => {
              dispatch(employeeUpdate({ prop: 'shift', value: item.shift }));
              
       } 
-      else 
-      {
-        dispatch(employeeUpdate({ prop: 'name', value: '' }));
-        dispatch(employeeUpdate({ prop: 'phone', value: '' }));
-         dispatch(employeeUpdate({ prop: 'shift', value: '' }));
-      }
             
     },[focus]);
 
@@ -49,7 +44,9 @@ const EmployeeEdit = (props) => {
       const onPhoneChange = (text) => {
         dispatch(employeeUpdate({ prop: 'phone', value: text }));
       };
-    
+      const onShiftChange = (text) => {
+        setSelectedShift(text)
+      };
       const OnFire = () => {
         Alert.alert(
           'Alert Title',
@@ -125,27 +122,10 @@ const EmployeeEdit = (props) => {
                 shift={ shift}
                 onNameChange={onNameChange}
                 onPhoneChange={onPhoneChange}
-                
+                onShiftChange={onShiftChange}
+                selectedShift={selectedShift}
                 />
                 
-                <Card>
-        <CardSection style={styles.container}>
-            
-        <Picker
-            selectedValue={selectedShift}
-            onValueChange={(itemValue, itemIndex) => setSelectedShift(itemValue)}
-
-          >
-            <Picker.Item label="Select Shift" value="" />
-            <Picker.Item label="Monday" value="Monday" />
-            <Picker.Item label="Tuesday" value="Tuesday" />
-            <Picker.Item label="Wednesday" value="Wednesday" />
-            <Picker.Item label="Thursday" value="Thursday" />
-            <Picker.Item label="Friday" value="Friday" />
-            <Picker.Item label="Saturday" value="Saturday" />
-          </Picker>
-        </CardSection>
-      </Card>
         <CardSection>
           <Button value="Save changes" onButtonPress={onUpdateEmployee} />
         </CardSection>

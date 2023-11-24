@@ -13,7 +13,8 @@ import { emailChange, passwordChange, setLoading } from '../Redux/AuthSlice'
 const LoginForm = ({route, navigation}) => {
   
   const { email, password ,loading} = useSelector((state) => state.Auth1);
-  const auth = route.params?.auth3;
+  const auth = route.params?.auth;
+  const db = route.params?.db;
 
     const dispatch =useDispatch();
 

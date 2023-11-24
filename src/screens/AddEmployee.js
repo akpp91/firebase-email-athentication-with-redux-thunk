@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, CardSection, Button } from '../common';
@@ -7,6 +7,7 @@ import { employeeUpdate } from '../Redux/employeeSlice';
 import { Picker } from '@react-native-picker/picker';
 import { collection, addDoc, doc } from 'firebase/firestore';
 import EmployeeForm from '../common/EmployeeForm';
+import { useIsFocused } from '@react-navigation/native';
 
 const AddEmployee = ({route, navigation}) => {
   const { user } = useSelector((state) => state.Auth1);
@@ -14,7 +15,17 @@ const AddEmployee = ({route, navigation}) => {
   const { name, phone, shift } = useSelector((state) => state.employee);
   const db = route.params?.db;
   const auth = route.params?.auth;
-  
+  const [selectedShift, setSelectedShift] = useState(shift);
+  const focus=useIsFocused();
+
+  useEffect(()=>{
+    if (focus) 
+      {
+    dispatch(employeeUpdate({ prop: 'name', value: '' }));
+    dispatch(employeeUpdate({ prop: 'phone', value: '' }));
+     dispatch(employeeUpdate({ prop: 'shift', value: 'Select Shift' }));
+      }
+  },[focus]);
 
   const onNameChange = (text) => {
     dispatch(employeeUpdate({ prop: 'name', value: text }));
@@ -25,7 +36,7 @@ const AddEmployee = ({route, navigation}) => {
   };
 
   const onShiftChange = (text) => {
-    dispatch(employeeUpdate({ prop: 'shift', value: text }));
+    setSelectedShift(text);
   };
 
   const onAddEmployee = async () => {
@@ -37,7 +48,7 @@ const AddEmployee = ({route, navigation}) => {
     await addDoc(collection(userDocRef, "employees"), {
       name: name,
       phone: phone,
-      shift: shift,
+      shift: selectedShift,
       
     });
 
@@ -58,7 +69,7 @@ const AddEmployee = ({route, navigation}) => {
 <EmployeeForm
 name={ name}
 phone={ phone}
-shift={ shift}
+selectedShift={ selectedShift}
 onNameChange={onNameChange}
 onPhoneChange={onPhoneChange}
 onShiftChange={onShiftChange}

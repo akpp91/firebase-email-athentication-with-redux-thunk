@@ -17,36 +17,24 @@ import EmployeeList from './screens/EmployeeList';
 import AddEmployee from './screens/AddEmployee';
 import { getFirestore } from "firebase/firestore";
 import EmployeeEdit from './common/EmployeeEdit';
+import { updateEmployeeRecord } from './Redux/ActionCreater';
+import { employeeUpdate } from './Redux/employeeSlice';
 
 
 const AppStack = createNativeStackNavigator();
 const EmployeeStack = createNativeStackNavigator();
 
 
-const AppNavigator = ({ auth }) => {
+const AppNavigator = ({ auth ,db}) => {
   return (
     <AppStack.Navigator initialRouteName= 'LoginForm'>
       <AppStack.Screen
         name='LoginForm'
         component={LoginForm}
-        initialParams={{ value: 'Log In', auth: auth }}
+        initialParams={{ value: 'Log In', auth: auth,db:db  }}
         options={{
           title: 'Authentication',
         }}
-      />
-      <AppStack.Screen
-        name='EmployeeList'
-        component={EmployeeList}
-         
-        options={{
-          title: 'EmployeeList',    
-          headerBackVisible:false,
-          
-          headerRight: () => 
-          <Butt title={"flickers"} onPress={() => {console.log("button pressed");}} 
-          />, 
-        }}
-        
       />
     </AppStack.Navigator>
   );
@@ -54,14 +42,14 @@ const AppNavigator = ({ auth }) => {
 
 const AppNavigator2 = ({ auth, db }) => {
   const nav = useNavigation();
-
+const dispatch=useDispatch();
   return (
     <AppStack.Navigator initialRouteName= 'EmployeeList'>
       
       <AppStack.Screen
         name='LoginForm'
         component={LoginForm}
-        initialParams={{ value: 'Log In', auth: auth }}
+        initialParams={{ value: 'Log In', auth: auth ,db:db }}
         options={{
           title: 'Authentication',
         }}
@@ -96,6 +84,17 @@ const AppNavigator2 = ({ auth, db }) => {
         initialParams={{ value: 'Log In', db:db , auth: auth}}
         options={{
           title: 'Edit Employee',
+          headerLeft: (props) => (
+            <Butt
+              {...props}
+              title='Back'
+              onPress={() => {
+                dispatch(employeeUpdate({ prop: 'shift', value: 'Select Shift' }));
+
+                nav.navigate('EmployeeList');
+              }}
+            />
+          ),
         }}
       />
       
