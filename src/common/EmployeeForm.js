@@ -30,23 +30,7 @@ const EmployeeForm = (props) => {
         </CardSection>
       </Card>
 
-      <Card>
-        <CardSection style={styles.container}>
-            
-        <Picker
-            selectedValue={props.shift}
-            onValueChange={props.onShiftChange}
-          >
-            <Picker.Item label="Select Shift" value="" />
-            <Picker.Item label="Monday" value="Monday" />
-            <Picker.Item label="Tuesday" value="Tuesday" />
-            <Picker.Item label="Wednesday" value="Wednesday" />
-            <Picker.Item label="Thursday" value="Thursday" />
-            <Picker.Item label="Friday" value="Friday" />
-            <Picker.Item label="Saturday" value="Saturday" />
-          </Picker>
-        </CardSection>
-      </Card>
+      
     </View>
   )
 }

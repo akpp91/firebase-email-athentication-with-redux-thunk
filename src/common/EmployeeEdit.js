@@ -1,13 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect } from 'react'
+
+import { Alert, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { Card } from './Card'
 import { CardSection } from './CardSection'
 import { Button } from './Button'
 import EmployeeForm from './EmployeeForm'
 import { employeeUpdate } from '../Redux/employeeSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateEmployeeRecord } from '../Redux/ActionCreater'
-import { useIsFocused } from '@react-navigation/native'
+import { deleteEmployeeRecord, updateEmployeeRecord } from '../Redux/ActionCreater'
+import { CommonActions, useIsFocused } from '@react-navigation/native'
+import SendSMS from 'react-native-sms'
+import { Picker } from '@react-native-picker/picker'
+
 
 const EmployeeEdit = (props) => {
     
@@ -18,15 +22,25 @@ const EmployeeEdit = (props) => {
     const focus=useIsFocused();
     const db = props.route.params?.db;
     const auth = props.route.params?.auth;
+    const [selectedShift, setSelectedShift] = useState(shift);
 
-    useEffect(()=>{
-
-            dispatch(employeeUpdate({ prop: 'name', value: item.name }));
+    useEffect( ()=>{
+      console.log("shift value in useeffect edit"+" "+shift);
+      if (focus) 
+      {
+        dispatch(employeeUpdate({ prop: 'name', value: item.name }));
             dispatch(employeeUpdate({ prop: 'phone', value: item.phone }));
-            dispatch(employeeUpdate({ prop: 'shift', value: item.shift }));
-                
-       
-    },[item]);
+             dispatch(employeeUpdate({ prop: 'shift', value: item.shift }));
+             
+      } 
+      else 
+      {
+        dispatch(employeeUpdate({ prop: 'name', value: '' }));
+        dispatch(employeeUpdate({ prop: 'phone', value: '' }));
+         dispatch(employeeUpdate({ prop: 'shift', value: '' }));
+      }
+            
+    },[focus]);
 
     const onNameChange = (text) => {
         dispatch(employeeUpdate({ prop: 'name', value: text }));
@@ -36,10 +50,42 @@ const EmployeeEdit = (props) => {
         dispatch(employeeUpdate({ prop: 'phone', value: text }));
       };
     
-      const onShiftChange = (text) => {
-        dispatch(employeeUpdate({ prop: 'shift', value: text }));
+      const OnFire = () => {
+        Alert.alert(
+          'Alert Title',
+          `Are you sure you want to fire ${name}`,
+          [
+           
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel Pressed'),
+              style: 'cancel',
+            },
+            {
+              text: 'OK', 
+              onPress: () => {
+                onDeleteEmployee();
+                props.navigation.navigate('EmployeeList');
+                }
+            },
+          ],
+          {cancelable: false},
+        );
       };
+
+      const onDeleteEmployee = async () => {
+        try {
+          // Dispatch the deleteEmployeeRecord action to delete the Firestore record
+          dispatch(deleteEmployeeRecord(auth, db, item.id));
     
+          // After successful deletion, navigate to the employee list or perform other actions
+          props.navigation.navigate('EmployeeList');
+        } catch (error) {
+          console.error('Error deleting employee:', error);
+          // Handle errors if necessary
+        }
+      };
+
       const onUpdateEmployee = async () => 
       {
         try 
@@ -54,7 +100,7 @@ const EmployeeEdit = (props) => {
           id: item.id,
           name: name,
           phone: phone,
-          shift: shift,
+          shift: selectedShift,
         })
       );
   
@@ -79,11 +125,52 @@ const EmployeeEdit = (props) => {
                 shift={ shift}
                 onNameChange={onNameChange}
                 onPhoneChange={onPhoneChange}
-                onShiftChange={onShiftChange}
+                
                 />
+                
+                <Card>
+        <CardSection style={styles.container}>
+            
+        <Picker
+            selectedValue={selectedShift}
+            onValueChange={(itemValue, itemIndex) => setSelectedShift(itemValue)}
+
+          >
+            <Picker.Item label="Select Shift" value="" />
+            <Picker.Item label="Monday" value="Monday" />
+            <Picker.Item label="Tuesday" value="Tuesday" />
+            <Picker.Item label="Wednesday" value="Wednesday" />
+            <Picker.Item label="Thursday" value="Thursday" />
+            <Picker.Item label="Friday" value="Friday" />
+            <Picker.Item label="Saturday" value="Saturday" />
+          </Picker>
+        </CardSection>
+      </Card>
         <CardSection>
           <Button value="Save changes" onButtonPress={onUpdateEmployee} />
         </CardSection>
+        <CardSection>
+  <Button 
+  value="Message Schedule" 
+  onButtonPress={() => SendSMS.send({
+    body: `your shift is sheduled on ${shift}`,
+    recipients: [`${phone}`],
+    successTypes: ['sent', 'queued'],
+    allowAndroidSendWithoutReadPermission: true
+}, (completed, cancelled, error) => {
+
+    console.log('SMS Callback: completed: ' + completed + ' cancelled: ' + cancelled + 'error: ' + error);
+
+})} 
+  />
+</CardSection>
+
+<CardSection>
+<Button 
+  value="Fire Employee" 
+  onButtonPress={OnFire}
+/>
+</CardSection>
       </Card>
 
 

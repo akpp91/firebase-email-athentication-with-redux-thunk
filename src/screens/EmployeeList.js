@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchEmployeeData } from '../Redux/ActionCreater'
 import { useIsFocused } from '@react-navigation/native'
 import { Card, CardSection } from '../common'
+import { employeeUpdate } from '../Redux/employeeSlice'
 
 
 const EmployeeList = ({route, navigation}) => {
@@ -17,7 +18,11 @@ const EmployeeList = ({route, navigation}) => {
     dispatch(fetchEmployeeData(auth, db));
     
   },[focus])
-  
+
+  const onNav=(item)=>{
+    dispatch(employeeUpdate({ prop: 'shift', value: item.shift }));
+    navigation.navigate('EmployeeEdit',{item:item})
+  }
   return (
     <View>
       
@@ -26,7 +31,7 @@ const EmployeeList = ({route, navigation}) => {
         renderItem={({ item }) => (
           <Card>
             <CardSection>
-              <TouchableNativeFeedback onPress={()=>navigation.navigate('EmployeeEdit',{item:item})}>
+              <TouchableNativeFeedback onPress={()=>onNav(item)}>
             <Text style={styles.labelStyle}>
             {item.name}
             </Text>

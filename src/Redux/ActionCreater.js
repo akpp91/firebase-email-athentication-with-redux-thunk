@@ -1,6 +1,6 @@
 import { emailChange, loginSuccess, passwordChange, setLoadingFalse } from "./AuthSlice";
 import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
 
 import { Alert } from "react-native";
 import { employeeUpdate } from "./employeeSlice";
@@ -123,10 +123,31 @@ export function updateEmployeeRecord(auth, db, updatedEmployee) {
         shift: updatedEmployee.shift,
       });
 
- Alert.alert('Employee record updated in Firestore');
+ Alert.alert('Employee record deleted');
       // You may want to dispatch an action to update the Redux store if needed
     } catch (error) {
       console.error('Error updating employee record:', error);
+      // Handle errors if necessary
+    }
+  };
+}
+
+// Action to delete an employee record in Firestore
+export function deleteEmployeeRecord(auth, db, employeeId) {
+  return async function deleteEmployeeRecordThunk(dispatch) {
+    try {
+      const userEmail = auth.currentUser.email;
+      const userDocRef = doc(collection(db, 'users'), userEmail);
+      const employeeDocRef = doc(collection(userDocRef, 'employees'), employeeId);
+
+      // Use deleteDoc to delete the document
+      await deleteDoc(employeeDocRef);
+
+      Alert.alert('Employee record deleted from Firestore');
+
+      // You may want to dispatch an action to update the Redux store if needed
+    } catch (error) {
+      console.error('Error deleting employee record:', error);
       // Handle errors if necessary
     }
   };
